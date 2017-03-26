@@ -40,6 +40,13 @@ public class Complex {
         return new Complex(re, im);
     }
 
+    public Complex timesPlus(Complex b, Complex c) {
+        Complex a = this;
+        double re = a.re * b.re - a.im * b.im + c.re;
+        double im = a.re * b.im + a.im * b.re + c.im;
+        return new Complex(re, im);
+    }
+
     public Complex times(Complex b) {
         Complex a = this;
         double re = a.re * b.re - a.im * b.im;

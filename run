@@ -1,4 +1,4 @@
 #!/bin/bash
 
-mvn clean install
+mvn clean install # > /dev/null
 mvn exec:java -Dexec.mainClass="xyz.luan.fractals.Main"
