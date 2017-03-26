@@ -1,8 +1,6 @@
 package xyz.luan.fractals;
 
 import me.tongfei.progressbar.ProgressBar;
-import org.orangepalantir.leastsquares.Function;
-import org.orangepalantir.leastsquares.fitters.LinearFitter;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,8 +9,8 @@ public class Main {
 
     public static final int ITERATIONS = 200;
 
-    public static boolean mand(Complex z0) {
-        Complex z = z0;
+    public static boolean mand(Complex c) {
+        Complex z = c;
         double max = 0;
         int lastMax = 0;
         for (int t = 0; t < 100 * ITERATIONS; t++) {
@@ -28,7 +26,7 @@ public class Main {
                 return true;
             }
 
-            z = z.timesPlus(z, z0);
+            z = z.timesPlus(z, c);
         }
         return false;
     }
@@ -68,20 +66,20 @@ public class Main {
 
     private static double boxCount(Picture picture) {
         int n = (int) (Math.log(picture.size()) / Math.log(2));
-        double[][] xs = new double[n][];
-        double[] zs = new double[n];
+        double[][] xs = new double[n][]; // because the library wants it this way
+        double[] ys = new double[n];
         ProgressBar pb = new ProgressBar("Box Count", n);
         pb.start();
         for (int i = 0; i < n; i++) {
             int r = (int) Math.pow(2, i);
             int squares = countSquares(picture, r);
             xs[i] = new double[]{Math.log(r)};
-            zs[i] = Math.log(squares);
+            ys[i] = Math.log(squares);
             pb.step();
         }
         pb.stop();
         System.out.println("Running MMMQ...");
-        double[] params = MMQ.run(xs, zs);
+        double[] params = MMQ.run(xs, ys); // ax+b, returns [a, b]
         return params[0];
     }
 
