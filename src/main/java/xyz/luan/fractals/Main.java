@@ -1,5 +1,9 @@
 package xyz.luan.fractals;
 
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+
 public class Main {
 
     public static final int ITERATIONS = 200;
@@ -41,7 +45,36 @@ public class Main {
     }
 
     private static int boxCount(Picture picture) {
-        return 0; // TODO
+        int i = 0, r;
+        List<int[]> points = new ArrayList<>();
+        while ((r = (int) Math.pow(2, i)) < picture.size()) {
+            int squares = countSquares(picture, r);
+            points.add(new int[]{r, squares});
+        }
+        return points.size();
+    }
+
+    private static int countSquares(Picture picture, int r) {
+        int total = 0;
+        for (int i = 0; i < picture.size() / r; i += r) {
+            for (int j = 0; j < picture.size() / r; j += r) {
+                if (countSubSquare(picture, i, j)) {
+                    total++;
+                }
+            }
+        }
+        return total;
+    }
+
+    private static boolean countSubSquare(Picture picture, int i, int j) {
+        for (int dx = 0; dx < picture.size(); dx++) {
+            for (int dy = 0; dy < picture.size(); dy++) {
+                if (picture.get(i + dx, j + dy)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static Picture generatePicture(boolean display) {
@@ -53,7 +86,7 @@ public class Main {
 
         ProgressBar progressBar = new ProgressBar(n * n);
         if (display) progressBar.display();
-        Picture picture = new Picture(n, n);
+        Picture picture = new Picture(n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 double x0 = xc - size / 2 + size * i / n;
