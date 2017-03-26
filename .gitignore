@@ -1,5 +1,7 @@
 *.iml
 out/
 target/
+results/
 .idea/
 *.png
+*.zip

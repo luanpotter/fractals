@@ -4,6 +4,9 @@ import me.tongfei.progressbar.ProgressBar;
 import org.orangepalantir.leastsquares.Function;
 import org.orangepalantir.leastsquares.fitters.LinearFitter;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Main {
 
     public static final int ITERATIONS = 200;
@@ -31,22 +34,36 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        String basePath = "/home/luan/projects/fractals/results/";
+
+        for (int i = 7; ; i++) {
+            int details = (int) Math.pow(2, i);
+            String fileName = basePath + "fractal_" + details;
+            run(fileName, details);
+        }
+    }
+
+    private static void run(String fileName, int details) {
+        System.out.println("-----------------------------------------------");
+        System.out.println("Running for " + details);
         System.out.println("Generating picture...");
-        Picture picture = generatePicture(1024);
+        Picture picture = generatePicture(details);
         System.out.println("Counting dimensions...");
-        countDimension(picture);
-        System.out.println("Saving result...");
-        savePicture(picture);
-        System.out.println("Done!");
-    }
-
-    private static void savePicture(Picture picture) {
-        picture.save("/home/luan/projects/fractals/fractal.png");
-    }
-
-    private static void countDimension(Picture picture) {
         double dimension = boxCount(picture);
         System.out.println("Calculated dimension: " + dimension);
+        System.out.println("Saving result...");
+        writeResultToFile(fileName, details, dimension);
+        picture.save(fileName + ".png");
+        System.out.println("Done!");
+        System.out.println("-----------------------------------------------");
+    }
+
+    private static void writeResultToFile(String fileName, int details, double dimension) {
+        try (FileWriter w = new FileWriter(fileName + ".result")) {
+            w.write("(details, dim): (" + details + ", " + dimension + ")\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static double boxCount(Picture picture) {
@@ -63,29 +80,9 @@ public class Main {
             pb.step();
         }
         pb.stop();
-        LinearFitter a = new LinearFitter(new Function() {
-            @Override
-            public double evaluate(double[] values, double[] parameters) {
-                double A = parameters[0];
-                double B = parameters[1];
-                double x = values[0];
-                return A * x + B;
-            }
-
-            @Override
-            public int getNParameters() {
-                return 2;
-            }
-
-            @Override
-            public int getNInputs() {
-                return 1;
-            }
-        });
-        a.setData(xs, zs);
-        a.setParameters(new double[]{1d, 0d});
-        a.fitData();
-        return a.getParameters()[0];
+        System.out.println("Running MMMQ...");
+        double[] params = MMQ.run(xs, zs);
+        return params[0];
     }
 
     private static int countSquares(Picture picture, int r) {
