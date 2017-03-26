@@ -1,23 +1,13 @@
 package xyz.luan.fractals;
 
-import java.io.BufferedReader;
+import jline.TerminalFactory;
+import jline.console.ConsoleReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class ProgressBar {
 
-    private static final int COLUMNS;
-
-    static {
-        try {
-            Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", "tput cols 2> /dev/tty"});
-            p.waitFor();
-            String result = new BufferedReader(new InputStreamReader(p.getInputStream())).lines().findFirst().orElse("80");
-            COLUMNS = Integer.parseInt(result);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static final int COLUMNS = TerminalFactory.get().getWidth();
 
     private int total, current;
 
@@ -35,7 +25,19 @@ public class ProgressBar {
     }
 
     public void display() {
-        System.out.print(buildLine());
+        try {
+            new ConsoleReader().print(buildLine());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void clear() {
+        try {
+            new ConsoleReader().clearScreen();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String buildLine() {
@@ -55,13 +57,5 @@ public class ProgressBar {
         }
         res += "]";
         return res;
-    }
-
-    public void clear() {
-        try {
-            Runtime.getRuntime().exec("clear").waitFor();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -1,8 +1,7 @@
 package xyz.luan.fractals;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import org.orangepalantir.leastsquares.Function;
+import org.orangepalantir.leastsquares.fitters.LinearFitter;
 
 public class Main {
 
@@ -30,9 +29,13 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Picture picture = generatePicture(false);
-        new Thread(() -> countDimension(picture)).start();
-        new Thread(() -> savePicture(picture)).start();
+        System.out.println("Generating picture...");
+        Picture picture = generatePicture();
+        System.out.println("Counting dimensions...");
+        countDimension(picture);
+        System.out.println("Saving result...");
+        savePicture(picture);
+        System.out.println("Done!");
     }
 
     private static void savePicture(Picture picture) {
@@ -40,18 +43,43 @@ public class Main {
     }
 
     private static void countDimension(Picture picture) {
-        int dimension = boxCount(picture);
+        double dimension = boxCount(picture);
         System.out.println("Calculated dimension: " + dimension);
     }
 
-    private static int boxCount(Picture picture) {
-        int i = 0, r;
-        List<int[]> points = new ArrayList<>();
-        while ((r = (int) Math.pow(2, i)) < picture.size()) {
+    private static double boxCount(Picture picture) {
+        int n = (int) (Math.log(picture.size()) / Math.log(2));
+        double[][] xs = new double[n][];
+        double[] zs = new double[n];
+        for (int i = 0; i < n; i++) {
+            int r = (int) Math.pow(2, i);
             int squares = countSquares(picture, r);
-            points.add(new int[]{r, squares});
+            xs[i] = new double[]{Math.log(r)};
+            zs[i] = Math.log(squares);
         }
-        return points.size();
+        LinearFitter a = new LinearFitter(new Function() {
+            @Override
+            public double evaluate(double[] values, double[] parameters) {
+                double A = parameters[0];
+                double B = parameters[1];
+                double x = values[0];
+                return A * x + B;
+            }
+
+            @Override
+            public int getNParameters() {
+                return 2;
+            }
+
+            @Override
+            public int getNInputs() {
+                return 1;
+            }
+        });
+        a.setData(xs, zs);
+        a.setParameters(new double[]{1d, 0d});
+        a.fitData();
+        return a.getParameters()[0];
     }
 
     private static int countSquares(Picture picture, int r) {
@@ -77,15 +105,15 @@ public class Main {
         return false;
     }
 
-    private static Picture generatePicture(boolean display) {
+    private static Picture generatePicture() {
         double xc = 0d;
         double yc = 0d;
         double size = 5d;
 
-        int n = 128;
+        int n = 512;
 
         ProgressBar progressBar = new ProgressBar(n * n);
-        if (display) progressBar.display();
+        progressBar.display();
         Picture picture = new Picture(n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -96,7 +124,7 @@ public class Main {
                     picture.set(i, n - 1 - j);
                 }
                 progressBar.tick();
-                if (display) progressBar.display();
+                progressBar.display();
             }
         }
         progressBar.clear();
