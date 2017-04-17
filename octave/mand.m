@@ -1,20 +1,45 @@
 function mand()
-  function M = mandelbrot(cmin, cmax, hpx, niter)
-    vpx = round(hpx * abs(imag(cmax - cmin) / real(cmax - cmin)));
-    z = zeros(vpx, hpx);
-    [cRe, cIm] = meshgrid(linspace(real(cmin), real(cmax), hpx), linspace(imag(cmin), imag(cmax), vpx));
-    c = cRe + i*cIm;
-    M = zeros(vpx, hpx);
-    for s = 1:niter
-      mask = abs(z) < 2;
-      M(mask) = M(mask) + 1;
-      z(mask) = z(mask).^2 + c(mask);
+
+  ITER = 200
+  details = 64
+
+  function M = mandf(c)
+    z = c;
+    max = 0;
+    lastMax = 0;
+    niter = 100*ITER - 1;
+    for t = 0:niter
+      a = abs(z);
+      if (isinf(a))
+        M = 0;
+	return
+      endif
+      if (a > max)
+        max = a;
+	lastMax = t;
+      elseif (t - lastMax > ITER)
+        M = 1;
+	return
+      endif
+      z = z*z + c;
     endfor
-    M(mask) = 0;
-    whos('mask')
+    M = 0;
   endfunction
-  
-  set=mandelbrot(-2.1 + 1.05i, 0.7 - 1.05i, 640, 64);
-  imagesc(set)
-  print -dpdf foo.pdf
+
+  xc = double(0)
+  yc = double(0)
+  size = double(5)
+
+  picture = ones(details, details);
+  for i = 0:(details - 1)
+    for j = 0:(details - 1)
+      x0 = xc - size / 2 + size * i / details;
+      y0 = yc - size / 2 + size * j / details;
+      if mandf(x0 + y0*i) == 1
+        picture(i + 1, details - j) = 0;
+      endif
+    endfor
+  endfor
+
+  imwrite(picture, 'test.png')
 endfunction
