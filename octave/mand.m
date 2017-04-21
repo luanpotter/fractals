@@ -1,7 +1,7 @@
 function mand()
 
   ITER = 200
-  details = 64
+  details = 128
 
   function M = mandf(c)
     z = c;
@@ -30,13 +30,15 @@ function mand()
   yc = double(0)
   size = double(5)
 
+  imgu = i;
+
   picture = ones(details, details);
   for i = 0:(details - 1)
     for j = 0:(details - 1)
       x0 = xc - size / 2 + size * i / details;
       y0 = yc - size / 2 + size * j / details;
-      if mandf(x0 + y0*i) == 1
-        picture(i + 1, details - j) = 0;
+      if mandf(x0 + imgu*y0) == 1
+        picture(details - j, i + 1) = 0;
       endif
     endfor
   endfor
