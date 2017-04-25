@@ -1,29 +1,18 @@
 function mand()
 
-  ITER = 200 # Number of consecutive iterations that are necessary to determine that a constant growth means explosion
-  details = 128 # Size of the result image, in pixels (always square, details x details) ; beware : should be a power of 2
+  ITER = 300 # Number of consecutive iterations that are necessary to determine that a constant growth means explosion
+  details = 512 # Size of the result image, in pixels (always square, details x details) ; beware : should be a power of 2
 
   function M = mandf(c) # returns whether the complex c belongs to the mand set
     z = c; # current point
-    max = 0; # current max z
-    lastMax = 0; # previous max z
-    niter = 100*ITER - 1; # total, number of iterations, if no growth is detected in this range, assume limited
-    for t = 0:niter
-      a = abs(z);
-      if (isinf(a)) # exploded! for sure
+    for t = 0:ITER
+      if abs(z) > 2
         M = 0;
-	return
-      endif
-      if (a > max)
-        max = a;
-	lastMax = t;
-      elseif (t - lastMax > ITER) # it's growing non stop for ITER iterations, must explode
-        M = 1;
-	return
+        return
       endif
       z = z*z + c; # next in the sequence
     endfor
-    M = 0; # didn't explode in niter iterations
+    M = 1; # didn't explode in ITER iterations
   endfunction
 
   function D = dim(frac) # calculates the dimension of the frac with the box count method
@@ -75,14 +64,12 @@ function mand()
 
   imgu = i; # because I used i in the for and got all mixed up -.-
 
-  picture = ones(details, details); # fill with ones! (we well zero if the dot does not belong)
+  picture = zeros(details, details); # fill with ones! (we well zero if the dot does not belong)
   for i = 0:(details - 1)
     for j = 0:(details - 1)
       x0 = xc - frac_size / 2 + frac_size * i / details;
       y0 = yc - frac_size / 2 + frac_size * j / details;
-      if mandf(x0 + imgu*y0) == 1
-        picture(details - j, i + 1) = 0;
-      endif
+      picture(details - j, i + 1) = !mandf(x0 + imgu*y0);
     endfor
   endfor
 
