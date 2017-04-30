@@ -1,9 +1,5 @@
 function main_pascal()
 
-  size = 512
-  k = 2 # prime
-  expectedDim = 1 + log((k + 1)/2)/log(k)
-
   function pt = pascal_triangle_mod(n, modulus)
     pt(1, 1) = 1;
     for r = 2:n
@@ -15,24 +11,30 @@ function main_pascal()
     end
   end
 
-  picture = zeros(2*size, 2*size);
-  triangle = pascal_triangle_mod(size, k);
-  for row = 1:size
-    rowPx = (2*(row - 1)+1):(2*(row - 1)+2);
-
-    values = triangle(row,1:row);
-
-    pad = size - columns(values);
-
-    picture(rowPx,1:pad) = 1;
-    for i=1:columns(values)
-      pos = pad + 2*(i - 1) + 1;
-      picture(rowPx,pos:pos+1) = !values(i);
+  function picture = generate(size, k)
+    picture = zeros(2*size, 2*size);
+    triangle = pascal_triangle_mod(size, k);
+    for row = 1:size
+      rowPx = (2*(row - 1)+1):(2*(row - 1)+2);
+      values = triangle(row,1:row);
+      pad = size - columns(values);
+      picture(rowPx,1:pad) = 1;
+      for i=1:columns(values)
+        pos = pad + 2*(i - 1) + 1;
+        picture(rowPx,pos:pos+1) = !values(i);
+      endfor
+      picture(rowPx,end-pad:end) = 1;
     endfor
-    picture(rowPx,end-pad:end) = 1;
+  endfunction
+
+  k = 2 # prime
+  expectedDim = 1 + log((k + 1)/2)/log(k)
+
+  for st = 2:12
+    picture = generate(2^st, k);
+    d(st - 1) = dim(picture);
+    imwrite(picture, sprintf('results/pascal-%d.png', st));
   endfor
-
-  d = dim(picture)
-
-  imwrite(picture, 'results/fractal.png');
+  d
 endfunction
+
