@@ -1,22 +1,21 @@
 function main_pascal()
 
-  function pt = pascal_triangle_mod(n, modulus)
-    pt(1, 1) = 1;
-    for r = 2:n
-      pt(r, 1) = 1;
-      for c = 2:r-1
-          pt(r, c) = mod(pt(r-1, c-1) + pt(r-1, c), modulus);
-      end
-      pt(r, r) = 1;
+  function pt = next_triangle(prev_row, row, modulus)
+    pt(1) = 1;
+    for c = 2:row-1
+      pt(c) = mod(prev_row(c - 1) + prev_row(c), modulus);
     end
+    pt(row) = 1;
   end
 
   function picture = generate(size, k)
     picture = zeros(2*size, 2*size);
-    triangle = pascal_triangle_mod(size, k);
+    values = [];
+    prev_row = [];
     for row = 1:size
       rowPx = (2*(row - 1)+1):(2*(row - 1)+2);
-      values = triangle(row,1:row);
+      values = next_triangle(prev_row, row, k);
+      prev_row = values;
       pad = size - columns(values);
       picture(rowPx,1:pad) = 1;
       for i=1:columns(values)
