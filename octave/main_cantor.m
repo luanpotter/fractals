@@ -1,6 +1,6 @@
 function main_cantor()
-
-  H = 100
+  output_precision(15)
+  H = 10
 
   function nb = next_block_list(block_list)
     nb = [];
@@ -23,7 +23,8 @@ function main_cantor()
     endfor
   endfunction
 
-  picture = generate(3^11, 10);
-  imwrite(picture, 'results/cantor.png');
+  picture = generate(3^8, 7);
+  dim1d(picture)
+  imwrite(picture, 'results/cantor_2d.png');
 endfunction
 

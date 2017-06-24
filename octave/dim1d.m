@@ -1,0 +1,82 @@
+function D = dim1d(frac) # calculates the dimension of the frac with the box count method
+  n = floor(log3(columns(frac)))
+  for i=1:n
+    r = pow3(i - 1) # amount of squares
+    draw(frac, r);
+    squares = countSquares(frac, r)
+    xs(i) = log(r);
+    ys(i) = log(squares);
+  endfor
+  mmq = (xs'\ys');
+  D = mmq(1);
+endfunction
+
+function R = log3(n)
+  R = log(n) / log (3);
+endfunction
+
+function R = pow3(n)
+  R = 3**n;
+endfunction
+
+function draw(frac, r)
+    C=size(frac, 1);
+    L=columns(frac);
+    copy = frac();
+    square_size = L/r
+    for j=1:square_size:L
+      copy(1:C,j) = 2;
+    endfor
+
+    red = zeros(C, L);
+    green = zeros(C, L);
+    blue = zeros(C, L);
+    for ai=1:C
+      for aj=1:L
+        if copy(ai, aj) == 1
+          red(ai, aj) = 255; green(ai, aj) = 255; blue(ai, aj) = 255;
+        else if copy(ai, aj) == 2
+          red(ai, aj) = 255;
+        endif endif
+      endfor
+    endfor
+    truecolor_image = cat(3, red, green, blue);
+    imwrite(truecolor_image, strcat('results/cantor_p_', num2str(r), '.png'));
+endfunction
+
+function total = countSquares(fractal, r)
+  total = 0;
+  N = size(fractal, 2);
+  square_size = N / r;
+  for ci=0:square_size:(N-1)
+    if countSubSquare(fractal, ci, square_size) == 1
+      total += 1;
+    endif
+  endfor
+endfunction
+
+function B = countSubSquare(fractal, i, s)
+  t = s - 1;
+  if i + t > size(fractal, 2)
+    t = size(fractal, 2) - i;
+  endif
+  for dx = 1:t
+    if fractal(1, i + dx) == 0
+      B = 1;
+      return
+    endif
+  endfor
+  B = 0;
+endfunction
+
+function results = map(list, f)
+  for k = 1:length(list)
+    if (k==1)
+        r1=f(list(k));
+        results = zeros(length(r1),length(list));
+        results(:,k)=r1;
+    else
+        results(:,k) = f(list(k));
+    end;
+  end;
+end
