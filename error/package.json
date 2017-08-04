@@ -1,0 +1,10 @@
+{
+  "name": "fractals-error",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Luan Nico",
+  "license": "MIT",
+  "dependencies": {
+    "jimp": "^0.2.28"
+  }
+}
