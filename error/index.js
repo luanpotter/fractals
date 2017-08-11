@@ -1,5 +1,10 @@
 const Jimp = require("jimp");
 
+const log = v => {
+	console.log(v);
+	return v;
+};
+
 const empty = len => new Array(len).fill(0);
 const range = len => empty(len).map((_, i) => i);
 
@@ -35,11 +40,22 @@ const bxc_i = (line, offset, size) => {
 };
 const bxc = line => bxc_i(line, 0, line.length);
 
-const size = Math.pow(2, 6) * Math.pow(3, 2);
+const bxcd = line => {
+	let l = line.length, t = 0;
+	while (l % 2 === 0) {
+		l /= 2;
+		t++;
+	}
+	const t2 = Math.pow(2, t);
+	return range(t2).filter(i => line.slice(i*l, (i+1)*l).some(e => !e)).length;
+}
+
+const size = Math.pow(2, 5) * Math.pow(3, 2);
 
 const line = empty(size);
 cantor(line);
-const dim = bxc(line);
+const dim = bxcd(line);
 console.log(dim);
+bxc(line);
 save(line.map(i => empty(size / 9).map(() => i)), 'test.png');
 
