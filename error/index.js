@@ -1,4 +1,20 @@
-const Jimp = require("jimp");
+const Jimp = require('jimp');
+
+const { fitLin } = require('labs-fitter');
+const Decimal = require('decimal.js');
+
+const fit = values => {
+	const ZERO = new Decimal('10e-100');
+	let toVal = e => ({ value : new Decimal(e), error: ZERO  });
+
+    let xv = values.map(e => e[0]).map(toVal);
+    let yv = values.map(e => e[1]).map(toVal);
+
+    return fitLin(xv, yv);
+}
+
+const pow = Math.pow;
+const ln = Math.log;
 
 const log = v => {
 	console.log(v);
@@ -37,25 +53,33 @@ const bxc_i = (line, offset, size) => {
     line[offset + bit] = 2;
     bxc_i(line, offset, bit);
     bxc_i(line, offset + bit, bit);
+
 };
 const bxc = line => bxc_i(line, 0, line.length);
 
 const bxcd = line => {
-	let l = line.length, t = 0;
+	let l = line.length, tt = 0;
 	while (l % 2 === 0) {
 		l /= 2;
-		t++;
+		tt++;
 	}
-	const t2 = Math.pow(2, t);
-	return range(t2).filter(i => line.slice(i*l, (i+1)*l).some(e => !e)).length;
+	const pairs = range(tt).map(t => {
+		const t2 = pow(2, t);
+		const squares = range(t2).filter(i => line.slice(i*l, (i+1)*l).some(e => !e)).length;
+		return [ln(t2), ln(squares)]; // x, y
+	});
+	return fit(pairs)[0].value.toSD(5).toString();
 }
 
-const size = Math.pow(2, 5) * Math.pow(3, 2);
+const size = pow(2, 10) * pow(3, 10);
 
 const line = empty(size);
 cantor(line);
-const dim = bxcd(line);
-console.log(dim);
-bxc(line);
-save(line.map(i => empty(size / 9).map(() => i)), 'test.png');
 
+const dim = bxcd(line);
+log(dim);
+
+// bxc(line);
+// save(line.map(i => empty(size / 9).map(() => i)), 'test.png');
+
+// should be 0.6309	(i.e., log_3(2))
