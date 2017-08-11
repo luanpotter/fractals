@@ -23,7 +23,7 @@ function main_cantor()
     endfor
   endfunction
 
-  picture = generate(3^8, 7);
+  picture = generate(3^6, 5);
   dim1d(picture)
   imwrite(picture, 'results/cantor_2d.png');
 endfunction

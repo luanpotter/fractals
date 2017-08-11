@@ -1,7 +1,7 @@
 function D = dim1d(frac) # calculates the dimension of the frac with the box count method
-  n = floor(log3(columns(frac)))
+  n = floor(log2(columns(frac)))
   for i=1:n
-    r = pow3(i - 1) # amount of squares
+    r = pow2(i - 1) # amount of squares
     draw(frac, r);
     squares = countSquares(frac, r)
     xs(i) = log(r);
