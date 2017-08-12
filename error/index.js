@@ -3,6 +3,18 @@ const Jimp = require('jimp');
 const { fitLin } = require('labs-fitter');
 const Decimal = require('decimal.js');
 
+const power2 = parseInt(process.argv[2]) + 1;
+const power3 = parseInt(process.argv[3]) + 1;
+
+const main = () => {
+    range(2, power2).forEach(p2 => {
+        range(2, power3).forEach(p3 => {
+            const dim = getDim(p2, p3);
+            console.log(`p2 : ${p2} | p3 : ${p3} | dim : ${dim}`);
+        });
+    });
+};
+
 const fit = values => {
 	const ZERO = new Decimal('10e-100');
 	let toVal = e => ({ value : new Decimal(e), error: ZERO  });
@@ -22,7 +34,8 @@ const log = v => {
 };
 
 const empty = len => new Array(len).fill(0);
-const range = len => empty(len).map((_, i) => i);
+const range_r = len => empty(len).map((_, i) => i);
+const range = (iniOrLen, len) => len ? range_r(len - iniOrLen).map(i => i + iniOrLen) : range_r(iniOrLen);
 
 const gray = c => (data, idx) => range(3).forEach(i => data[idx + i] = c);
 const colors = [ gray(0), gray(255), (data, idx) => data[idx] = 255 ];
@@ -53,7 +66,6 @@ const bxc_i = (line, offset, size) => {
     line[offset + bit] = 2;
     bxc_i(line, offset, bit);
     bxc_i(line, offset + bit, bit);
-
 };
 const bxc = line => bxc_i(line, 0, line.length);
 
@@ -69,17 +81,22 @@ const bxcd = line => {
 		return [ln(t2), ln(squares)]; // x, y
 	});
 	return fit(pairs)[0].value.toSD(5).toString();
-}
+};
 
-const size = pow(2, 10) * pow(3, 10);
+const getDim = (power2, power3) => {
+    const size = pow(2, power2) * pow(3, power3);
 
-const line = empty(size);
-cantor(line);
+    const line = empty(size);
+    cantor(line);
 
-const dim = bxcd(line);
-log(dim);
+    return bxcd(line);
+};
+
+// log(dim);
 
 // bxc(line);
 // save(line.map(i => empty(size / 9).map(() => i)), 'test.png');
 
 // should be 0.6309	(i.e., log_3(2))
+
+main();
