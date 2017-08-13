@@ -39,6 +39,10 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+big-integer@^1.6.23:
+  version "1.6.23"
+  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.23.tgz#e85d508220c74e3f43a4ce72eed51f3da4db94d1"
+
 bignumber.js@^2.1.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-2.4.0.tgz#838a992da9f9d737e0f4b2db0be62bb09dd0c5e8"
@@ -104,6 +108,13 @@ ecc-jsbn@~0.1.1:
   resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.1.tgz#0fc73a9ed5f0d53c38193398523ef7e543777505"
   dependencies:
     jsbn "~0.1.0"
+
+endless-bitset@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/endless-bitset/-/endless-bitset-1.0.0.tgz#171c95b383f3dcd78d33ab1bcb84857c8c337364"
+  dependencies:
+    big-integer "^1.6.23"
+    fast-bitset "^1.3.2"
 
 es6-promise@^3.0.2:
   version "3.3.1"

@@ -1,5 +1,5 @@
 const Jimp = require('jimp');
-const BitSet = require('fast-bitset');
+const BitSet = require('endless-bitset');
 
 const { fitLin } = require('labs-fitter');
 const Decimal = require('decimal.js');
@@ -62,7 +62,7 @@ const cantor_i = (line, offset, size) => {
     cantor_i(line, offset + 2*bit, bit);
 };
 
-const cantor = line => cantor_i(line, 0, line.size);
+const cantor = line => cantor_i(line, 0, line.length);
 
 const bxc_i = (line, offset, size) => {
     if (size % 2) return;
@@ -71,7 +71,7 @@ const bxc_i = (line, offset, size) => {
     bxc_i(line, offset, bit);
     bxc_i(line, offset + bit, bit);
 };
-const bxc = line => bxc_i(line, 0, line.size);
+const bxc = line => bxc_i(line, 0, line.length);
 
 const findAnyOnRange = (line, start, end) => {
   const nxt = line.nextUnsetBit(start);
@@ -79,7 +79,7 @@ const findAnyOnRange = (line, start, end) => {
 };
 
 const bxcd = line => {
-	let l = line.size, tt = 0;
+	let l = line.length, tt = 0;
 	while (l % 2 === 0) {
 		l /= 2;
 		tt++;
@@ -96,7 +96,6 @@ const getDim = (power2, power3) => {
     const size = pow(2, power2) * pow(3, power3);
 
     const line = new BitSet(size);
-    line.size = size; // really, BitSet?
     cantor(line);
 
     return bxcd(line);
