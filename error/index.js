@@ -1,4 +1,5 @@
 const Jimp = require('jimp');
+const BitSet = require('fast-bitset');
 
 const { fitLin } = require('labs-fitter');
 const Decimal = require('decimal.js');
@@ -6,18 +7,18 @@ const Decimal = require('decimal.js');
 const power2 = parseInt(process.argv[2]) + 1;
 const power3 = parseInt(process.argv[3]) + 1;
 
+const p2 = power2;
+const p3 = power3;
+
 const main = () => {
-    range(2, power2).forEach(p2 => {
-        range(2, power3).forEach(p3 => {
+            console.log(`p2 : ${p2}\np3 : ${p3}`);
             const dim = getDim(p2, p3);
-            console.log(`p2 : ${p2} | p3 : ${p3} | dim : ${dim}`);
-        });
-    });
+            console.log(`dim : ${dim}`);
 };
 
 const fit = values => {
-	const ZERO = new Decimal('10e-100');
-	let toVal = e => ({ value : new Decimal(e), error: ZERO  });
+    const ZERO = new Decimal('10e-100');
+    let toVal = e => ({ value : new Decimal(e), error: ZERO  });
 
     let xv = values.map(e => e[0]).map(toVal);
     let yv = values.map(e => e[1]).map(toVal);
@@ -29,8 +30,8 @@ const pow = Math.pow;
 const ln = Math.log;
 
 const log = v => {
-	console.log(v);
-	return v;
+    console.log(v);
+    return v;
 };
 
 const empty = len => new Array(len).fill(0);
@@ -54,11 +55,14 @@ const save = (bitmap, output) => {
 const cantor_i = (line, offset, size) => {
     if (size % 3) return;
     const bit = size / 3;
-    range(bit).map(i => line[offset + bit + i] = 1);
+    for (let i = 0; i < bit; i++) {
+        line.set(offset + bit + i);
+    }
     cantor_i(line, offset + 0, bit);
     cantor_i(line, offset + 2*bit, bit);
 };
-const cantor = line => cantor_i(line, 0, line.length);
+
+const cantor = line => cantor_i(line, 0, line.size);
 
 const bxc_i = (line, offset, size) => {
     if (size % 2) return;
@@ -67,17 +71,22 @@ const bxc_i = (line, offset, size) => {
     bxc_i(line, offset, bit);
     bxc_i(line, offset + bit, bit);
 };
-const bxc = line => bxc_i(line, 0, line.length);
+const bxc = line => bxc_i(line, 0, line.size);
+
+const findAnyOnRange = (line, start, end) => {
+  const nxt = line.nextUnsetBit(start);
+  return (nxt !== -1) && (nxt <= end);
+};
 
 const bxcd = line => {
-	let l = line.length, tt = 0;
+	let l = line.size, tt = 0;
 	while (l % 2 === 0) {
 		l /= 2;
 		tt++;
 	}
 	const pairs = range(tt).map(t => {
 		const t2 = pow(2, t);
-		const squares = range(t2).filter(i => line.slice(i*l, (i+1)*l).some(e => !e)).length;
+		const squares = range(t2).filter(i => findAnyOnRange(line, i*l, (i+1)*l)).length;
 		return [ln(t2), ln(squares)]; // x, y
 	});
 	return fit(pairs)[0].value.toSD(5).toString();
@@ -86,7 +95,8 @@ const bxcd = line => {
 const getDim = (power2, power3) => {
     const size = pow(2, power2) * pow(3, power3);
 
-    const line = empty(size);
+    const line = new BitSet(size);
+    line.size = size; // really, BitSet?
     cantor(line);
 
     return bxcd(line);
